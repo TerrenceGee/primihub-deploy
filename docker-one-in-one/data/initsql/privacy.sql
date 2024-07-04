@@ -130,6 +130,7 @@ CREATE TABLE `data_project` (
                                 `project_id` varchar(141) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '项目ID 机构后12位+UUID',
                                 `project_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '项目名称',
                                 `project_desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '项目描述',
+                                `project_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '项目类型 MPC HFL VFL',
                                 `created_organ_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '机构id',
                                 `created_organ_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '机构名称',
                                 `created_username` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '创建者名称',
@@ -375,6 +376,152 @@ CREATE TABLE `data_reasoning_resource` (
                                            PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='推理资源表';
 
+DROP TABLE IF EXISTS `data_fusion_copy_task`;
+CREATE TABLE `data_fusion_copy_task` (
+                                         `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+                                         `task_type` tinyint(4) NOT NULL COMMENT '任务类型 1 批量 2 单条',
+                                         `current_offset` bigint(20) NOT NULL COMMENT '当前偏移量',
+                                         `target_offset` bigint(20) NOT NULL COMMENT '目标便宜量',
+                                         `task_table` varchar(64) NOT NULL COMMENT '复制任务表名',
+                                         `server_address` varchar(64) COMMENT '发送地址',
+                                         `organ_id` varchar(64) COMMENT '机构ID',
+                                         `latest_error_msg` varchar(1024) NOT NULL COMMENT '最近一次复制失败原因',
+                                         `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
+                                         `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+                                         `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+                                         PRIMARY KEY (`id`) USING BTREE,
+                                         KEY `current_offset_ix` (`current_offset`) USING BTREE,
+                                         KEY `target_offset_ix` (`target_offset`) USING BTREE,
+                                         KEY `c_time_ix` (`c_time`) USING BTREE,
+                                         KEY `u_time_ix` (`u_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+DROP TABLE IF EXISTS `data_resource_visibility_auth`;
+CREATE TABLE `data_resource_visibility_auth`  (
+                                                  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+                                                  `resource_id` bigint(20) NOT NULL COMMENT '资源id',
+                                                  `organ_global_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '机构唯一id',
+                                                  `organ_name` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '资源名称',
+                                                  `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
+                                                  `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+                                                  `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+                                                  PRIMARY KEY (`id`) USING BTREE,
+                                                  INDEX `resource_id_ix`(`resource_id`) USING BTREE,
+                                                  INDEX `organ_global_id_ix`(`organ_global_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `data_visiting_users`;
+CREATE TABLE `data_visiting_users` (
+                                       `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '来访ID',
+                                       `familiarity_practitioner` TINYINT  COMMENT '从业者',
+                                       `familiarity_AlreadyInUse` TINYINT  COMMENT '已在应用',
+                                       `familiarity_veryFamiliar` TINYINT  COMMENT '非常熟悉',
+                                       `familiarity_generalFamiliar` TINYINT  COMMENT '一般熟悉',
+                                       `familiarity_notKnow` TINYINT  COMMENT '完全不懂',
+                                       `gender_male` TINYINT  COMMENT '男',
+                                       `gender_female` TINYINT  COMMENT '女',
+                                       `city_beijing` TINYINT  COMMENT '北京',
+                                       `city_shanghai` TINYINT  COMMENT '上海',
+                                       `city_shenzhen` TINYINT  COMMENT '深圳',
+                                       `city_hangzhou` TINYINT  COMMENT '杭州',
+                                       `city_changsha` TINYINT  COMMENT '长沙',
+                                       `industry_internet` TINYINT  COMMENT '互联网',
+                                       `industry_financial` TINYINT  COMMENT '金融',
+                                       `industry_government` TINYINT  COMMENT '政府',
+                                       `industry_medical` TINYINT  COMMENT '医疗',
+                                       `industry_industrial` TINYINT  COMMENT '工业',
+                                       `industry_car` TINYINT  COMMENT '汽车',
+                                       `industry_newEnergy` TINYINT  COMMENT '新能源',
+                                       `industry_other` TINYINT  COMMENT '其他',
+                                       `visitPurposes_cooperation` TINYINT  COMMENT '商业合作',
+                                       `visitPurposes_learning` TINYINT  COMMENT '学习',
+                                       `visitPurposes_trial` TINYINT  COMMENT '试用',
+                                       `visitPurposes_browse` TINYINT  COMMENT '随便看看',
+                                       `age_age` TINYINT  COMMENT '年龄',
+                                       `jobPosition_manager` TINYINT  COMMENT '管理者',
+                                       `jobPosition_PM` TINYINT  COMMENT '产品',
+                                       `jobPosition_developer` TINYINT  COMMENT '技术',
+                                       `jobPosition_commerceAffairs` TINYINT  COMMENT '商务',
+                                       `jobPosition_solution` TINYINT  COMMENT '解决方案',
+                                       `jobPosition_other` TINYINT  COMMENT '其他',
+                                       `is_del` TINYINT DEFAULT '0'  COMMENT '是否删除',
+                                       `create_date` DATETIME ( 3 ) NOT NULL DEFAULT CURRENT_TIMESTAMP ( 3 ) COMMENT '创建时间',
+                                       `update_date` DATETIME ( 3 ) NOT NULL DEFAULT CURRENT_TIMESTAMP ( 3 ) ON UPDATE CURRENT_TIMESTAMP ( 3 ) COMMENT '修改时间',
+                                       PRIMARY KEY ( `id` )
+) ENGINE = INNODB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC COMMENT = '应用市场来访用户';
+
+DROP TABLE IF EXISTS `sys_organ`;
+CREATE TABLE `sys_organ`  (
+                              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '机构id',
+                              `apply_id` varchar(255) DEFAULT NULL COMMENT '申请加入ID',
+                              `organ_id` varchar(255) DEFAULT NULL COMMENT '申请加入机构ID',
+                              `organ_name` varchar(255) DEFAULT NULL COMMENT '申请加入机构名称',
+                              `organ_gateway` varchar(255) DEFAULT NULL COMMENT '申请加入机构网关地址',
+                              `public_key` varchar(1000) DEFAULT NULL COMMENT '机构公钥',
+                              `examine_state` tinyint(4) DEFAULT '0' COMMENT '可用状态(0待审批 1同意 2拒绝)',
+                              `examine_msg` mediumtext COMMENT '审批信息',
+                              `node_state` tinyint(4) DEFAULT '0' COMMENT '可用状态(0不在线 1在线)',
+                              `fusion_state` tinyint(4) DEFAULT '0' COMMENT '可用状态(0不在线 1在线)',
+                              `platform_state` tinyint(4) DEFAULT '0' COMMENT '可用状态(0不在线 1在线)',
+                              `lat` decimal(18,14) DEFAULT NULL COMMENT '纬度',
+                              `lon` decimal(18,14) DEFAULT NULL COMMENT '经度',
+                              `country` varchar(255) DEFAULT NULL COMMENT '区域',
+                              `enable` tinyint(4) NOT NULL COMMENT '是否启用 0启用 1禁用',
+                              `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
+                              `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+                              `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+                              PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '机构信息' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `sys_role`;
+CREATE TABLE `sys_role`  (
+                             `role_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '角色id',
+                             `role_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '角色名称',
+                             `is_editable` tinyint(4) NOT NULL COMMENT '是否可编辑',
+                             `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
+                             `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+                             `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+                             PRIMARY KEY (`role_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色表' ROW_FORMAT = DYNAMIC;
+
+INSERT INTO `sys_role` VALUES (1, '超级管理员', 0, 0, '2022-03-25 17:08:52.100', '2022-03-25 17:43:29.970');
+INSERT INTO `sys_role` VALUES (1000, '业务权限', 1, 0, '2022-04-27 17:50:02.139', '2022-04-27 17:50:02.139');
+
+DROP TABLE IF EXISTS `sys_ur`;
+CREATE TABLE `sys_ur`  (
+                           `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+                           `user_id` bigint(20) NOT NULL COMMENT '用户id',
+                           `role_id` bigint(20) NOT NULL COMMENT '角色id',
+                           `is_del` bigint(20) NOT NULL COMMENT '是否删除',
+                           `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+                           `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+                           PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户角色关系表' ROW_FORMAT = DYNAMIC;
+
+INSERT INTO `sys_ur` VALUES (1, 1, 1, 0, '2022-03-25 17:55:53.090', '2022-03-25 18:03:28.371');
+
+DROP TABLE IF EXISTS `sys_user`;
+CREATE TABLE `sys_user`  (
+                             `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '用户id',
+                             `user_account` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '账户名称',
+                             `user_password` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '账户密码',
+                             `user_name` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户昵称',
+                             `role_id_list` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '角色id集合',
+                             `is_forbid` tinyint(4) NOT NULL COMMENT '是否禁用',
+                             `is_editable` tinyint(4) NOT NULL COMMENT '是否可编辑',
+                             `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
+                             `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+                             `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更改时间',
+                             `auth_uuid` varchar(255) DEFAULT NULL COMMENT '第三方uuid',
+                             `ip` varchar(255) DEFAULT NULL COMMENT '第三方uuid',
+                             `register_type` tinyint(4) NOT NULL COMMENT '注册类型1：管理员创建 2：邮箱 3：手机',
+                             PRIMARY KEY (`user_id`) USING BTREE,
+                             UNIQUE INDEX `ix_unique_user_account`(`user_account`) USING BTREE COMMENT '账户名称唯一索引',
+                             KEY `ix_index_auth_uuid` (`auth_uuid`)
+) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+
+INSERT INTO `sys_user` VALUES (1, 'admin', 'a0f34ffac5a82245e4fca2e21f358a42', 'admin', '1', 0, 1, 0, '2022-03-25 17:55:53.048', '2022-07-18 17:13:02.377','' ,'',1);
+
 DROP TABLE IF EXISTS `sys_auth`;
 CREATE TABLE `sys_auth`  (
                              `auth_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '权限id',
@@ -582,55 +729,6 @@ INSERT INTO `sys_ra` (`id`, `role_id`, `auth_id`, `is_del`, `c_time`, `u_time`) 
 INSERT INTO `sys_ra` (`id`, `role_id`, `auth_id`, `is_del`, `c_time`, `u_time`) VALUES (1106, 1000, 1064, 0, '2022-10-27 10:47:26.136', '2022-10-27 10:47:26.136');
 INSERT INTO `sys_ra` (`id`, `role_id`, `auth_id`, `is_del`, `c_time`, `u_time`) VALUES (1107, 1000, 1065, 0, '2022-10-27 10:47:26.136', '2022-10-27 10:47:26.136');
 
-DROP TABLE IF EXISTS `sys_role`;
-CREATE TABLE `sys_role`  (
-                             `role_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '角色id',
-                             `role_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '角色名称',
-                             `is_editable` tinyint(4) NOT NULL COMMENT '是否可编辑',
-                             `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
-                             `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-                             `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
-                             PRIMARY KEY (`role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色表' ROW_FORMAT = DYNAMIC;
-
-INSERT INTO `sys_role` VALUES (1, '超级管理员', 0, 0, '2022-03-25 17:08:52.100', '2022-03-25 17:43:29.970');
-INSERT INTO `sys_role` VALUES (1000, '业务权限', 1, 0, '2022-04-27 17:50:02.139', '2022-04-27 17:50:02.139');
-
-DROP TABLE IF EXISTS `sys_ur`;
-CREATE TABLE `sys_ur`  (
-                           `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
-                           `user_id` bigint(20) NOT NULL COMMENT '用户id',
-                           `role_id` bigint(20) NOT NULL COMMENT '角色id',
-                           `is_del` bigint(20) NOT NULL COMMENT '是否删除',
-                           `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-                           `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
-                           PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户角色关系表' ROW_FORMAT = DYNAMIC;
-
-INSERT INTO `sys_ur` VALUES (1, 1, 1, 0, '2022-03-25 17:55:53.090', '2022-03-25 18:03:28.371');
-
-DROP TABLE IF EXISTS `sys_user`;
-CREATE TABLE `sys_user`  (
-                             `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '用户id',
-                             `user_account` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '账户名称',
-                             `user_password` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '账户密码',
-                             `user_name` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户昵称',
-                             `role_id_list` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '角色id集合',
-                             `is_forbid` tinyint(4) NOT NULL COMMENT '是否禁用',
-                             `is_editable` tinyint(4) NOT NULL COMMENT '是否可编辑',
-                             `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
-                             `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-                             `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更改时间',
-                             `auth_uuid` varchar(255) DEFAULT NULL COMMENT '第三方uuid',
-                             `ip` varchar(255) DEFAULT NULL COMMENT '第三方uuid',
-                             `register_type` tinyint(4) NOT NULL COMMENT '注册类型1：管理员创建 2：邮箱 3：手机',
-                             PRIMARY KEY (`user_id`) USING BTREE,
-                             UNIQUE INDEX `ix_unique_user_account`(`user_account`) USING BTREE COMMENT '账户名称唯一索引',
-                             KEY `ix_index_auth_uuid` (`auth_uuid`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
-
-INSERT INTO `sys_user` VALUES (1, 'admin', 'a0f34ffac5a82245e4fca2e21f358a42', 'admin', '1', 0, 1, 0, '2022-03-25 17:55:53.048', '2022-07-18 17:13:02.377','' ,'',1);
-
 DROP TABLE IF EXISTS `sys_file`;
 CREATE TABLE `sys_file`  (
                              `file_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '文件id',
@@ -646,103 +744,6 @@ CREATE TABLE `sys_file`  (
                              `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
                              PRIMARY KEY (`file_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '文件表' ROW_FORMAT = Dynamic;
-
-DROP TABLE IF EXISTS `data_fusion_copy_task`;
-CREATE TABLE `data_fusion_copy_task` (
-                                         `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-                                         `task_type` tinyint(4) NOT NULL COMMENT '任务类型 1 批量 2 单条',
-                                         `current_offset` bigint(20) NOT NULL COMMENT '当前偏移量',
-                                         `target_offset` bigint(20) NOT NULL COMMENT '目标便宜量',
-                                         `task_table` varchar(64) NOT NULL COMMENT '复制任务表名',
-                                         `server_address` varchar(64) COMMENT '发送地址',
-                                         `organ_id` varchar(64) COMMENT '机构ID',
-                                         `latest_error_msg` varchar(1024) NOT NULL COMMENT '最近一次复制失败原因',
-                                         `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
-                                         `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-                                         `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
-                                         PRIMARY KEY (`id`) USING BTREE,
-                                         KEY `current_offset_ix` (`current_offset`) USING BTREE,
-                                         KEY `target_offset_ix` (`target_offset`) USING BTREE,
-                                         KEY `c_time_ix` (`c_time`) USING BTREE,
-                                         KEY `u_time_ix` (`u_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
-
-DROP TABLE IF EXISTS `data_resource_visibility_auth`;
-CREATE TABLE `data_resource_visibility_auth`  (
-                                                  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-                                                  `resource_id` bigint(20) NOT NULL COMMENT '资源id',
-                                                  `organ_global_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '机构唯一id',
-                                                  `organ_name` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '资源名称',
-                                                  `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
-                                                  `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-                                                  `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
-                                                  PRIMARY KEY (`id`) USING BTREE,
-                                                  INDEX `resource_id_ix`(`resource_id`) USING BTREE,
-                                                  INDEX `organ_global_id_ix`(`organ_global_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
-
-DROP TABLE IF EXISTS `data_visiting_users`;
-CREATE TABLE `data_visiting_users` (
-                                       `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '来访ID',
-                                       `familiarity_practitioner` TINYINT  COMMENT '从业者',
-                                       `familiarity_AlreadyInUse` TINYINT  COMMENT '已在应用',
-                                       `familiarity_veryFamiliar` TINYINT  COMMENT '非常熟悉',
-                                       `familiarity_generalFamiliar` TINYINT  COMMENT '一般熟悉',
-                                       `familiarity_notKnow` TINYINT  COMMENT '完全不懂',
-                                       `gender_male` TINYINT  COMMENT '男',
-                                       `gender_female` TINYINT  COMMENT '女',
-                                       `city_beijing` TINYINT  COMMENT '北京',
-                                       `city_shanghai` TINYINT  COMMENT '上海',
-                                       `city_shenzhen` TINYINT  COMMENT '深圳',
-                                       `city_hangzhou` TINYINT  COMMENT '杭州',
-                                       `city_changsha` TINYINT  COMMENT '长沙',
-                                       `industry_internet` TINYINT  COMMENT '互联网',
-                                       `industry_financial` TINYINT  COMMENT '金融',
-                                       `industry_government` TINYINT  COMMENT '政府',
-                                       `industry_medical` TINYINT  COMMENT '医疗',
-                                       `industry_industrial` TINYINT  COMMENT '工业',
-                                       `industry_car` TINYINT  COMMENT '汽车',
-                                       `industry_newEnergy` TINYINT  COMMENT '新能源',
-                                       `industry_other` TINYINT  COMMENT '其他',
-                                       `visitPurposes_cooperation` TINYINT  COMMENT '商业合作',
-                                       `visitPurposes_learning` TINYINT  COMMENT '学习',
-                                       `visitPurposes_trial` TINYINT  COMMENT '试用',
-                                       `visitPurposes_browse` TINYINT  COMMENT '随便看看',
-                                       `age_age` TINYINT  COMMENT '年龄',
-                                       `jobPosition_manager` TINYINT  COMMENT '管理者',
-                                       `jobPosition_PM` TINYINT  COMMENT '产品',
-                                       `jobPosition_developer` TINYINT  COMMENT '技术',
-                                       `jobPosition_commerceAffairs` TINYINT  COMMENT '商务',
-                                       `jobPosition_solution` TINYINT  COMMENT '解决方案',
-                                       `jobPosition_other` TINYINT  COMMENT '其他',
-                                       `is_del` TINYINT DEFAULT '0'  COMMENT '是否删除',
-                                       `create_date` DATETIME ( 3 ) NOT NULL DEFAULT CURRENT_TIMESTAMP ( 3 ) COMMENT '创建时间',
-                                       `update_date` DATETIME ( 3 ) NOT NULL DEFAULT CURRENT_TIMESTAMP ( 3 ) ON UPDATE CURRENT_TIMESTAMP ( 3 ) COMMENT '修改时间',
-                                       PRIMARY KEY ( `id` )
-) ENGINE = INNODB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC COMMENT = '应用市场来访用户';
-
-DROP TABLE IF EXISTS `sys_organ`;
-CREATE TABLE `sys_organ`  (
-                              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '机构id',
-                              `apply_id` varchar(255) DEFAULT NULL COMMENT '申请加入ID',
-                              `organ_id` varchar(255) DEFAULT NULL COMMENT '申请加入机构ID',
-                              `organ_name` varchar(255) DEFAULT NULL COMMENT '申请加入机构名称',
-                              `organ_gateway` varchar(255) DEFAULT NULL COMMENT '申请加入机构网关地址',
-                              `public_key` varchar(1000) DEFAULT NULL COMMENT '机构公钥',
-                              `examine_state` tinyint(4) DEFAULT '0' COMMENT '可用状态(0待审批 1同意 2拒绝)',
-                              `examine_msg` mediumtext COMMENT '审批信息',
-                              `node_state` tinyint(4) DEFAULT '0' COMMENT '可用状态(0不在线 1在线)',
-                              `fusion_state` tinyint(4) DEFAULT '0' COMMENT '可用状态(0不在线 1在线)',
-                              `platform_state` tinyint(4) DEFAULT '0' COMMENT '可用状态(0不在线 1在线)',
-                              `lat` decimal(18,14) DEFAULT NULL COMMENT '纬度',
-                              `lon` decimal(18,14) DEFAULT NULL COMMENT '经度',
-                              `country` varchar(255) DEFAULT NULL COMMENT '区域',
-                              `enable` tinyint(4) NOT NULL COMMENT '是否启用 0启用 1禁用',
-                              `is_del` tinyint(4) NOT NULL COMMENT '是否删除',
-                              `c_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-                              `u_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
-                              PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '机构信息' ROW_FORMAT = Dynamic;
 
 CREATE DATABASE IF NOT EXISTS `fusion` Character SET utf8 COLLATE utf8_bin;
 
